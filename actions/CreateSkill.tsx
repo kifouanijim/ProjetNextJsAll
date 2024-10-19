@@ -1,12 +1,11 @@
 "use server";
  
-import { addSkill } from "./AddSkill";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { isRedirectError } from "next/dist/client/components/redirect";
+import { addSkill } from "./AddSkill";
+import { SkillError } from "@/types/SkillError";
  
-// Define rules for the form data
 const SkillSchema = z.object({
   rowid: z.number(),
   skill_name: z.string().min(1).max(255),
@@ -14,47 +13,40 @@ const SkillSchema = z.object({
   user: z.number(),
 });
  
-// Ignore rowid and user in the form
 const ZodCreateSkill = SkillSchema.omit({ rowid: true, user: true });
  
-export async function CreateSkill(formData: FormData) {
+export async function CreateSkill(prevState: SkillError, formData: FormData) {
   try {
-    // Validate the form
-    const { skill_name, skill_level } = ZodCreateSkill.parse({
+    const validatedFields = ZodCreateSkill.safeParse({
       skill_name: formData.get("skill_name"),
       skill_level: formData.get("skill_level"),
     });
  
-    // Add the skill (see "/actions/AddSkill.tsx" in few steps)
+    if (!validatedFields.success) {
+      return {
+        errors: validatedFields.error.flatten().fieldErrors,
+        message: "Error, failed to add skill",
+      };
+    }
+ 
+    const { skill_name, skill_level } = validatedFields.data;
+ 
     const add = await addSkill(skill_name, skill_level);
  
-    // If there is an error during skill add process
     if (!add.ok || add.status >= 300) {
       const { message } = await add.json();
-      throw new Error(message);
+      return {
+        errors: { skill_name: [message] },
+        message: message,
+      };
     }
- 
-    // Here, skill was successfully added
-    revalidatePath("/mon-compte/profil"); // it will update the set with the new data
-    redirect("/mon-compte/profil");
   } catch (error) {
-    // If it's a redirection after a new skill is added
-    if (isRedirectError(error)) {
-      throw error;
-    }
-    // If it's a form validation error
-    if (error instanceof z.ZodError) {
-      const errors: Array<string> = [];
-      // Get all errors
-      error.issues.forEach((issue) => {
-        errors.push(issue.message);
-      });
- 
-      throw new Error(errors.join(", "));
-    } else if (typeof error === "object") {
-      // catch errors like "skill already exist"
-      throw new Error(error?.toString());
-    }
-    throw new Error("An error occured");
+    console.error(error);
+    return {
+      message: "An error occured",
+    };
   }
+ 
+  revalidatePath("/mon-compte/profil");
+  redirect("/mon-compte/profil");
 }
