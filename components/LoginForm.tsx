@@ -1,70 +1,74 @@
-"use client";
- 
-import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
-import { FormEvent } from "react";
- 
+import { useState, FormEvent } from "react";
+import { useRouter, usePathname } from "next/navigation";
+
 export default function LoginForm() {
-  const [error, setError] = useState(<></>);
+  const [error, setError] = useState<JSX.Element | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
   const pathname = usePathname();
- 
+
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // Prevent default form submission
- 
-    // Get data from form
+    e.preventDefault();
+
     const email = e.currentTarget.email.value.trim();
     const password = e.currentTarget.password.value.trim();
-    // If any data is empty
-    if (email == "" || password == "") {
+
+    if (email === "" || password === "") {
       setError(<p>All fields are required</p>);
-    } else {
-      try {
-        // Fetch "/api/login" route
-        const response = await fetch("/api/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email,
-            password,
-          }),
-        });
-        // If there is an error
-        if (!response.ok || response.status >= 300) {
-          const { message } = await response.json();
-          setError(<p>{message}</p>);
-        } else {
-          if (pathname.startsWith("/login")) {
-            router.push("/mon-compte"); // Redirect to /mon-compte page
-          }
-          router.refresh(); // Keep this page
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      setLoading(false);
+
+      if (!response.ok) {
+        const { message } = await response.json();
+        setError(<p>{message}</p>);
+        console.error("Login failed:", message);
+      } else {
+        console.log("Login successful");
+        if (pathname.startsWith("/login")) {
+          router.push("/mon-compte");
         }
-      } catch (error) {
-        console.error(error);
-        setError(<p>An error occured</p>);
+        router.refresh();
       }
+    } catch (err) {
+      console.error("An error occurred:", err);
+      setLoading(false);
+      setError(<p>An error occurred</p>);
     }
   };
- 
+
   return (
     <>
       <form method="POST" onSubmit={handleLogin}>
-        <label htmlFor="email">Email : </label>
+        <label htmlFor="email">Email:</label>
         <input
           type="email"
           name="email"
           id="email"
           placeholder="john.doe@gmail.com"
+          required
         />
         <br />
-        <label htmlFor="password">Password : </label>
-        <input type="password" name="password" id="password" />
+        <label htmlFor="password">Password:</label>
+        <input type="password" name="password" id="password" required />
         <br />
-        <input type="submit" name="login" value="Login" />
+        <button type="submit" disabled={loading}>
+          {loading ? "Loading..." : "Login"}
+        </button>
       </form>
-      {error && error}
+      {error && <div className="error-message">{error}</div>}
     </>
   );
 }

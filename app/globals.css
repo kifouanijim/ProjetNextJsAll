@@ -1,27 +1,39 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* globals.css */
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Déclaration des polices personnalisées */
+@font-face {
+  font-family: 'Geist Sans';
+  src: url('./fonts/GeistVF.woff') format('woff');
+  font-weight: 100 900; /* Définir les poids de police */
+  font-style: normal; /* Ajouter style normal */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('./fonts/GeistMonoVF.woff') format('woff');
+  font-weight: 100 900; /* Définir les poids de police */
+  font-style: normal; /* Ajouter style normal */
 }
 
+/* Classes pour utiliser les polices */
+.font-geist-sans {
+  font-family: 'Geist Sans', sans-serif; /* Polices de secours si Geist Sans n'est pas disponible */
+}
+
+.font-geist-mono {
+  font-family: 'Geist Mono', monospace; /* Polices de secours si Geist Mono n'est pas disponible */
+}
+
+/* Styles globaux */
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0; /* Réinitialiser les marges par défaut */
+  padding: 0; /* Réinitialiser le remplissage par défaut */
+  line-height: 1.5; /* Meilleure lisibilité du texte */
+  font-size: 16px; /* Taille de police par défaut */
+  background-color: #f9f9f9; /* Couleur d'arrière-plan par défaut */
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+.antialiased {
+  -webkit-font-smoothing: antialiased; /* Améliorer le lissage des polices pour WebKit */
+  -moz-osx-font-smoothing: grayscale; /* Améliorer le lissage des polices pour Firefox sur macOS */
 }
