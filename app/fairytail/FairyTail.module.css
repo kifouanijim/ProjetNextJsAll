@@ -1,0 +1,42 @@
+/* FairyTail.module.css */
+
+.container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  text-align: center;
+  color: #d9534f; /* Couleur rouge pour le titre */
+}
+
+.subTitle {
+  margin-top: 30px;
+  color: #5bc0de; /* Couleur cyan pour les sous-titres */
+}
+
+.arcsList,
+.charactersList {
+  list-style-type: none;
+  padding: 0;
+}
+
+.arcItem,
+.characterItem {
+  margin-bottom: 20px;
+  background-color: #ffffff;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Nouvelle classe pour h3 */
+.arcTitle,
+.characterTitle {
+  margin: 0;
+  color: #5cb85c; /* Couleur verte pour les titres des arcs et personnages */
+}

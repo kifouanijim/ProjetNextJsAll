@@ -1,13 +1,8 @@
-CREATE TABLE IF NOT EXISTS users (
-  firstname VARCHAR(255) NOT NULL,
-  lastname VARCHAR(255) NOT NULL,
-  email VARCHAR(255) NOT NULL,
-  pwd VARCHAR(255) NOT NULL,
-  registration DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-CREATE TABLE IF NOT EXISTS skills (
-  skill_name VARCHAR(255) NOT NULL,
-  level INT NOT NULL,
-  user INT NOT NULL,
-  FOREIGN KEY(user) REFERENCES users(ROWID)
+ALTER TABLE ViewingHistory (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    artwork_id INTEGER NOT NULL,
+    viewed_at TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES Users(id),
+    FOREIGN KEY (artwork_id) REFERENCES Artworks(id)
 );
