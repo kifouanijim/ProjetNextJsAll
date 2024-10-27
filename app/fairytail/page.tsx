@@ -1,8 +1,9 @@
-// pages/FairyTail.tsx
-"use client"; // Assurez-vous d'ajouter cette ligne en haut de votre fichier
+"use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './FairyTail.module.css';
+import { useRouter } from 'next/navigation'; // Import du routeur Next.js
+import { Crisp } from "crisp-sdk-web";
 
 const arcs = [
   {
@@ -27,40 +28,45 @@ const arcs = [
   },
 ];
 
-const characters = [
-  {
-    name: "Natsu Dragnir",
-    role: "Chasseur de Dragons de feu",
-    description:
-      "Le protagoniste principal, membre de Fairy Tail, qui rêve de devenir le plus grand mage et de retrouver son ami Igneel.",
-  },
-  {
-    name: "Lucy Heartfilia",
-    role: "Magière Céleste",
-    description:
-      "Une mage qui utilise des clés de constellations et qui aspire à rejoindre Fairy Tail. Elle devient proche de Natsu et de ses amis.",
-  },
-  {
-    name: "Gray Fullbuster",
-    role: "Magière de la Glace",
-    description:
-      "Un mage qui maîtrise la magie de la glace et qui a une rivalité amicale avec Natsu.",
-  },
-  {
-    name: "Erza Scarlet",
-    role: "Magière de l'Armure",
-    description:
-      "Une puissante mage qui utilise la magie de requip pour changer d'armure et d'armes pendant le combat.",
-  },
-  {
-    name: "Happy",
-    role: "Félin volant",
-    description:
-      "Un chat magique qui accompagne Natsu dans ses aventures, capable de voler et de parler.",
-  },
-];
-
 const FairyTail: React.FC = () => {
+  const [message, setMessage] = useState<string | null>(null);
+  const router = useRouter(); // Créez une instance du routeur
+  const userId = 1; // Remplacez par l'ID de l'utilisateur connecté
+
+  // Fonction pour configurer et ouvrir Crisp
+  const userlogin = () => {
+    Crisp.configure(process.env.NEXT_PUBLIC_WEBSITE_ID || "", {
+      autoload: false,
+    });
+    Crisp.chat.open();
+  };
+
+  // Fonction de vote
+  const handleVote = async (sagaTitle: string) => {
+    try {
+      const response = await fetch('/api/vote', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, sagaTitle }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        // Envoi du message de confirmation dans le chat bot
+        Crisp.message.show("text", `Merci pour votre vote pour l'arc "${sagaTitle}" !`);
+
+        // Redirigez l'utilisateur vers la page "mon-compte" avec le message
+        router.push(`/mon-compte?message=${encodeURIComponent(data.message)}`);
+      } else {
+        setMessage(data.message || 'Erreur lors de l\'enregistrement du vote.');
+      }
+    } catch (error) {
+      setMessage('Erreur de connexion au serveur.');
+    }
+  };
+
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Fairy Tail</h1>
@@ -70,19 +76,16 @@ const FairyTail: React.FC = () => {
           <li key={index} className={styles.arcItem}>
             <h3 className={styles.arcTitle}>{arc.title}</h3>
             <p>{arc.description}</p>
+            <button
+              className={styles.voteButton}
+              onClick={() => handleVote(arc.title)}
+            >
+              Voter pour cet arc
+            </button>
           </li>
         ))}
       </ul>
-      <h2 className={styles.subTitle}>Personnages Principaux</h2>
-      <ul className={styles.charactersList}>
-        {characters.map((character, index) => (
-          <li key={index} className={styles.characterItem}>
-            <h3 className={styles.characterTitle}>{character.name}</h3>
-            <p><strong>Rôle :</strong> {character.role}</p>
-            <p>{character.description}</p>
-          </li>
-        ))}
-      </ul>
+      {message && <p className={styles.message}>{message}</p>}
     </div>
   );
 };

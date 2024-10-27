@@ -11,12 +11,12 @@
 
 .title {
   text-align: center;
-  color: #d9534f; /* Couleur rouge pour le titre */
+  color: #d9534f;
 }
 
 .subTitle {
   margin-top: 30px;
-  color: #5bc0de; /* Couleur cyan pour les sous-titres */
+  color: #5bc0de;
 }
 
 .arcsList,
@@ -34,9 +34,22 @@
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Nouvelle classe pour h3 */
 .arcTitle,
 .characterTitle {
   margin: 0;
-  color: #5cb85c; /* Couleur verte pour les titres des arcs et personnages */
+  color: #5cb85c;
+}
+
+.voteButton {
+  background-color: #5bc0de;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.voteButton:hover {
+  background-color: #31b0d5;
 }
