@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './Scene.module.css';
+import { useRouter } from 'next/navigation'; // Import du routeur Next.js
+import { Crisp } from "crisp-sdk-web";
 
 const arcs = [
   {
@@ -60,6 +62,19 @@ const characters = [
 ];
 
 const Scene: React.FC = () => {
+  const [message, setMessage] = useState<string | null>(null);
+  const router = useRouter(); // Créez une instance du routeur
+  const userId = 1; // Remplacez par l'ID de l'utilisateur connecté
+
+  // Fonction pour configurer et ouvrir Crisp
+  const userlogin = () => {
+    Crisp.configure(process.env.NEXT_PUBLIC_WEBSITE_ID || "", {
+      autoload: false,
+    });
+    Crisp.chat.open();
+  };
+
+  // Fonction pour créer un effet de foudre
   const createLightning = () => {
     const scene = document.querySelector(`.${styles.scene}`);
     if (!scene) return;
@@ -76,7 +91,35 @@ const Scene: React.FC = () => {
     });
   };
 
+  // Fonction de vote
+  const handleVote = async (sagaTitle: string) => {
+    try {
+      const response = await fetch('/api/vote', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, sagaTitle }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        // Envoi du message de confirmation dans le chat bot
+        Crisp.message.show("text", `Merci pour votre vote pour l'arc "${sagaTitle}" !`);
+
+        // Redirigez l'utilisateur vers la page "mon-compte" avec le message
+        router.push(`/mon-compte?message=${encodeURIComponent(data.message)}`);
+      } else {
+        setMessage(data.message || 'Erreur lors de l\'enregistrement du vote.');
+      }
+    } catch (error) {
+      setMessage('Erreur de connexion au serveur.');
+    }
+  };
+
   useEffect(() => {
+    userlogin();
+
     const interval = setInterval(createLightning, 1000 + Math.random() * 2000);
     return () => clearInterval(interval);
   }, []);
@@ -92,6 +135,12 @@ const Scene: React.FC = () => {
             <li key={index}>
               <h3>{arc.title}</h3>
               <p>{arc.description}</p>
+              <button
+                className={styles.voteButton}
+                onClick={() => handleVote(arc.title)}
+              >
+                Voter pour cet arc
+              </button>
             </li>
           ))}
         </ul>
@@ -106,6 +155,7 @@ const Scene: React.FC = () => {
           ))}
         </ul>
       </div>
+      {message && <p className={styles.message}>{message}</p>}
     </div>
   );
 };
