@@ -1,6 +1,6 @@
-CREATE TABLE IF NOT EXISTS vote (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  utilisateur_id INTEGER NOT NULL,
-  oeuvre TEXT NOT NULL,
-  date_vote TEXT NOT NULL
+CREATE TABLE propositions (
+  rowid INTEGER PRIMARY KEY,
+  userId INTEGER NOT NULL,
+  name TEXT NOT NULL,
+  createdAt TEXT NOT NULL
 );
