@@ -1,12 +1,11 @@
 "use client";
 
 import { Crisp } from "crisp-sdk-web";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation"; // Import du routeur Next.js
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Page1() {
-  const router = useRouter(); // Créez une instance du routeur
-  const [actionCount, setActionCount] = useState(0); // Compteur d'actions
+  const router = useRouter();
 
   const userlogin = () => {
     Crisp.configure(process.env.NEXT_PUBLIC_WEBSITE_ID || "", {
@@ -26,77 +25,71 @@ export default function Page1() {
   }, []);
 
   const showCaroosel = () => {
-    const list = [
-      {
-        title: "Dragon Ball",
-        description: "Dragon Ball (ドラゴンボール, Doragon Bōru?, litt. Dragon Ball) est un manga d'Akira Toriyama...",
-        actions: [
-          {
-            label: "Voir Dragon Ball",
-            url: "/dragonball",
-          },
-        ],
-      },
-      {
-        title: "Fairy Tail",
-        description: "Fairy Tail (フェアリーテイル, Fearī Teiru?, jeu de mots anglophone sur tale conte et tail queue)...",
-        actions: [
-          {
-            label: "Voir Fairy Tail",
-            url: "/fairytail",
-          },
-        ],
-      },
-    ];
-
-    // Affichage d'un carousel dans le bot
+    // Affichage d'un carousel dans le bot avec actions fictives
     Crisp.message.show("carousel", {
       text: "Voici la liste des œuvres :",
-      targets: list,
+      targets: [
+        {
+          title: "Dragon Ball",
+          description: "Dragon Ball (ドラゴンボール, Doragon Bōru?, litt. Dragon Ball) est un manga d'Akira Toriyama...",
+          actions: [
+            {
+              label: "En savoir plus", // Action fictive pour satisfaire le type
+              url: "/dragonball", // URL factice
+            },
+          ],
+        },
+        {
+          title: "Fairy Tail",
+          description: "Fairy Tail (フェアリーテイル, Fearī Teiru?, jeu de mots anglophone sur tale conte et tail queue)...",
+          actions: [
+            {
+              label: "En savoir plus", // Action fictive pour satisfaire le type
+              url: "/fairytail", // URL factice
+            },
+          ],
+        },
+      ],
     });
-
-   
   };
 
-  const recordVote = async (userId: number, sagaTitle: string) => {
-    const response = await fetch("/api/vote", {
+  const recordViewing = async (sagaTitle: string, redirectUrl: string) => {
+    const userId = 1; // Remplacez par l'ID de l'utilisateur connecté
+    const response = await fetch("/api/viewing", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ userId, sagaTitle }),
+      body: JSON.stringify({
+        userId,
+        sagaTitle,
+        viewedAt: new Date().toISOString(),
+      }),
     });
 
-    const data = await response.json();
     if (response.ok) {
-      // Envoi direct du message dans le bot
-      Crisp.message.show("text", data.message);
-
-      // Redirigez l'utilisateur vers la page mon-compte avec un message
-      router.push(`/mon-compte?message=${encodeURIComponent(data.message)}`);
-
-      // Incrémentation du compteur d'actions
-    
+      Crisp.message.show("text", "Visionnage enregistré avec succès");
+      // Rediriger vers la page de l'œuvre
+      router.push(redirectUrl);
     } else {
-      Crisp.message.show("text", "Erreur : " + data.message); // Envoi direct du message d'erreur
+      Crisp.message.show("text", "Erreur lors de l'enregistrement du visionnage");
     }
-  };
-
-
-
-  const handleVote = (sagaTitle: string) => {
-    // Montre le carousel d'œuvres
-    showCaroosel();
-
-    // Enregistre le vote
-    recordVote(1, sagaTitle);
   };
 
   return (
     <>
       <h1>Page 1</h1>
       <button onClick={showCaroosel}>Affichez le carousel</button>
-      {/* Vous pouvez ajouter d'autres boutons ou actions qui appellent handleVote */}
+
+      {/* Boutons pour enregistrer le visionnage */}
+      <div>
+        <button onClick={() => recordViewing("Dragon Ball", "/dragonball")}>
+          Voir Dragon Ball
+        </button>
+        <button onClick={() => recordViewing("Fairy Tail", "/fairytail")}>
+          Voir Fairy Tail
+        </button>
+      </div>
     </>
   );
 }
