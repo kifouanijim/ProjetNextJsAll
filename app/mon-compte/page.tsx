@@ -16,16 +16,55 @@ export default function Page1() {
 
   useEffect(() => {
     userlogin();
+    showPropositionPrompt();
 
     // Récupérer le message passé dans l'URL
-    const message = new URLSearchParams(window.location.search).get('message');
+    const message = new URLSearchParams(window.location.search).get("message");
     if (message) {
       Crisp.message.show("text", message); // Affiche le message dans le bot
     }
   }, []);
 
+  // Affiche un message d'invite pour proposer une œuvre
+  const showPropositionPrompt = () => {
+    Crisp.message.show(
+      "text",
+      "Pour proposer une œuvre, entrez le nom de l'œuvre en commençant par 'Proposition:' suivi du titre."
+    );
+  };
+
+  // Fonction d'enregistrement de proposition
+  const recordProposition = async (userId: number, propositionName: string) => {
+    const response = await fetch("/api/proposition", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        propositionName,
+        proposedAt: new Date().toISOString(),
+      }),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      Crisp.message.show("text", "Proposition enregistrée avec succès !");
+    } else {
+      Crisp.message.show("text", "Erreur : " + data.message);
+    }
+  };
+
+  // Fonction de simulation d'écoute de message
+  const simulateMessageListening = (message: string) => {
+    // Vérifie si le message commence par "Proposition:" pour l'enregistrer
+    if (message.startsWith("Proposition:")) {
+      const userId = 1; // ID de l'utilisateur connecté
+      const propositionName = message.replace("Proposition:", "").trim();
+      recordProposition(userId, propositionName);
+    }
+  };
+
+  // Fonction d'affichage du carrousel
   const showCaroosel = () => {
-    // Affichage d'un carousel dans le bot avec actions fictives
     Crisp.message.show("carousel", {
       text: "Voici la liste des œuvres :",
       targets: [
@@ -34,8 +73,8 @@ export default function Page1() {
           description: "Dragon Ball (ドラゴンボール, Doragon Bōru?, litt. Dragon Ball) est un manga d'Akira Toriyama...",
           actions: [
             {
-              label: "En savoir plus", // Action fictive pour satisfaire le type
-              url: "/dragonball", // URL factice
+              label: "En savoir plus",
+              url: "/dragonball",
             },
           ],
         },
@@ -44,8 +83,8 @@ export default function Page1() {
           description: "Fairy Tail (フェアリーテイル, Fearī Teiru?, jeu de mots anglophone sur tale conte et tail queue)...",
           actions: [
             {
-              label: "En savoir plus", // Action fictive pour satisfaire le type
-              url: "/fairytail", // URL factice
+              label: "En savoir plus",
+              url: "/fairytail",
             },
           ],
         },
@@ -53,8 +92,9 @@ export default function Page1() {
     });
   };
 
+  // Fonction d'enregistrement de visionnage
   const recordViewing = async (sagaTitle: string, redirectUrl: string) => {
-    const userId = 1; // Remplacez par l'ID de l'utilisateur connecté
+    const userId = 1;
     const response = await fetch("/api/viewing", {
       method: "POST",
       headers: {
@@ -69,7 +109,6 @@ export default function Page1() {
 
     if (response.ok) {
       Crisp.message.show("text", "Visionnage enregistré avec succès");
-      // Rediriger vers la page de l'œuvre
       router.push(redirectUrl);
     } else {
       Crisp.message.show("text", "Erreur lors de l'enregistrement du visionnage");
@@ -80,8 +119,6 @@ export default function Page1() {
     <>
       <h1>Page 1</h1>
       <button onClick={showCaroosel}>Affichez le carousel</button>
-
-      {/* Boutons pour enregistrer le visionnage */}
       <div>
         <button onClick={() => recordViewing("Dragon Ball", "/dragonball")}>
           Voir Dragon Ball

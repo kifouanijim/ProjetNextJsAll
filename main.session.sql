@@ -1,1 +1,2 @@
-SELECT COUNT(*) AS total_visionnages FROM viewing;
+ALTER TABLE vote
+    "UNIQUE" (utilisateur_id, oeuvre)          
