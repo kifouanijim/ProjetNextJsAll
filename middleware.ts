@@ -9,8 +9,10 @@ export async function middleware(request: NextRequest) {
 
   // Vérifier si l'utilisateur n'est pas autorisé et tente d'accéder à une route protégée
   if (
-    (request.nextUrl.pathname.startsWith("/mon-compte") ||
-      request.nextUrl.pathname.endsWith("/add")) &&
+    (request.nextUrl.pathname.startsWith("/dragonball") ||
+    request.nextUrl.pathname.startsWith("/fairytail") ||
+    request.nextUrl.pathname.startsWith("/mon-compte") ||
+    request.nextUrl.pathname.startsWith("/users")) &&
     isAuthorized.status >= 300
   ) {
     return NextResponse.redirect(new URL("/login", request.url));
