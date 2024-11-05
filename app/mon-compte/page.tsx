@@ -18,6 +18,21 @@ export default function Page1() {
     userlogin();
     showPropositionPrompt();
 
+    // Écouteur pour détecter les propositions d'œuvres
+    Crisp.message.onMessageReceived(
+      (data: { content: { id: string; value: any } }) => {
+        if (data.content.id == "identifiant_de_votre_choix") {
+          const proposition = data.content.value;
+          if (proposition) { // Si ce n'est pas vide
+            simulateMessageListening(proposition);
+            Crisp.message.offMessageReceived();
+            return;
+          }
+          return;
+        }
+      }
+    );
+
     // Récupérer le message passé dans l'URL
     const message = new URLSearchParams(window.location.search).get("message");
     if (message) {
@@ -27,10 +42,11 @@ export default function Page1() {
 
   // Affiche un message d'invite pour proposer une œuvre
   const showPropositionPrompt = () => {
-    Crisp.message.show(
-      "text",
-      "Pour proposer une œuvre, entrez le nom de l'œuvre en commençant par 'Proposition:' suivi du titre."
-    );
+    Crisp.message.show("field", {
+      id: "identifiant_de_votre_choix",
+      text: "Pour proposer une œuvre, entrez le nom de l'œuvre en commençant par 'Proposition:' suivi du titre.",
+      explain: "La joconde",
+    });
   };
 
   // Fonction d'enregistrement de proposition
@@ -55,15 +71,11 @@ export default function Page1() {
 
   // Fonction de simulation d'écoute de message
   const simulateMessageListening = (message: string) => {
-    // Vérifie si le message commence par "Proposition:" pour l'enregistrer
-    if (message.startsWith("Proposition:")) {
-      const userId = 1; // ID de l'utilisateur connecté
-      const propositionName = message.replace("Proposition:", "").trim();
-      recordProposition(userId, propositionName);
-    }
+    const userId = 1; // ID de l'utilisateur connecté
+    recordProposition(userId, message);
   };
 
-  // Fonction d'affichage du carrousel
+  // Affiche un carousel dans Crisp
   const showCaroosel = () => {
     Crisp.message.show("carousel", {
       text: "Voici la liste des œuvres :",
@@ -92,7 +104,7 @@ export default function Page1() {
     });
   };
 
-  // Fonction d'enregistrement de visionnage
+  // Fonction d'enregistrement du visionnage
   const recordViewing = async (sagaTitle: string, redirectUrl: string) => {
     const userId = 1;
     const response = await fetch("/api/viewing", {
@@ -120,12 +132,8 @@ export default function Page1() {
       <h1>Page 1</h1>
       <button onClick={showCaroosel}>Affichez le carousel</button>
       <div>
-        <button onClick={() => recordViewing("Dragon Ball", "/dragonball")}>
-          Voir Dragon Ball
-        </button>
-        <button onClick={() => recordViewing("Fairy Tail", "/fairytail")}>
-          Voir Fairy Tail
-        </button>
+        <button onClick={() => recordViewing("Dragon Ball", "/dragonball")}>Voir Dragon Ball</button>
+        <button onClick={() => recordViewing("Fairy Tail", "/fairytail")}>Voir Fairy Tail</button>
       </div>
     </>
   );

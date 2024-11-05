@@ -1,2 +1,7 @@
-ALTER TABLE vote
-    "UNIQUE" (utilisateur_id, oeuvre)          
+CREATE TABLE IF NOT EXISTS proposition (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    proposition_name TEXT NOT NULL,
+    proposed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(rowid) ON DELETE CASCADE
+);
