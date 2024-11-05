@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import styles from './Scene.module.css';
-import { useRouter } from 'next/navigation'; // Import du routeur Next.js
+import { useRouter } from 'next/navigation';
 import { Crisp } from "crisp-sdk-web";
 
 const arcs = [
@@ -63,7 +63,7 @@ const characters = [
 
 const Scene: React.FC = () => {
   const [message, setMessage] = useState<string | null>(null);
-  const router = useRouter(); // Créez une instance du routeur
+  const router = useRouter();
   const userId = 1; // Remplacez par l'ID de l'utilisateur connecté
 
   // Fonction pour configurer et ouvrir Crisp
@@ -91,7 +91,7 @@ const Scene: React.FC = () => {
     });
   };
 
-  // Fonction de vote
+  // Fonction de vote général pour l'œuvre
   const handleVote = async (sagaTitle: string) => {
     try {
       const response = await fetch('/api/vote', {
@@ -115,6 +115,11 @@ const Scene: React.FC = () => {
     } catch (error) {
       setMessage('Erreur de connexion au serveur.');
     }
+  };
+
+  // Fonction de vote pour l'œuvre entière
+  const handleGeneralVote = async () => {
+    handleVote("Dragon Ball");
   };
 
   useEffect(() => {
@@ -154,6 +159,10 @@ const Scene: React.FC = () => {
             </li>
           ))}
         </ul>
+        <h2>Votez pour l'œuvre entière</h2>
+        <button className={styles.voteButton} onClick={handleGeneralVote}>
+          Voter pour Dragon Ball
+        </button>
       </div>
       {message && <p className={styles.message}>{message}</p>}
     </div>

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import styles from './FairyTail.module.css';
-import { useRouter } from 'next/navigation'; // Import du routeur Next.js
+import { useRouter } from 'next/navigation';
 import { Crisp } from "crisp-sdk-web";
 
 const arcs = [
@@ -30,7 +30,7 @@ const arcs = [
 
 const FairyTail: React.FC = () => {
   const [message, setMessage] = useState<string | null>(null);
-  const router = useRouter(); // Créez une instance du routeur
+  const router = useRouter();
   const userId = 1; // Remplacez par l'ID de l'utilisateur connecté
 
   // Fonction pour configurer et ouvrir Crisp
@@ -41,21 +41,21 @@ const FairyTail: React.FC = () => {
     Crisp.chat.open();
   };
 
-  // Fonction de vote
-  const handleVote = async (sagaTitle: string) => {
+  // Fonction de vote général pour l'œuvre
+  const handleVote = async () => {
     try {
       const response = await fetch('/api/vote', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId, sagaTitle }),
+        body: JSON.stringify({ userId, sagaTitle: "Fairy Tail" }),
       });
 
       const data = await response.json();
       if (response.ok) {
         // Envoi du message de confirmation dans le chat bot
-        Crisp.message.show("text", `Merci pour votre vote pour l'arc "${sagaTitle}" !`);
+        Crisp.message.show("text", `Merci pour votre vote pour l'œuvre "Fairy Tail" !`);
 
         // Redirigez l'utilisateur vers la page "mon-compte" avec le message
         router.push(`/mon-compte?message=${encodeURIComponent(data.message)}`);
@@ -76,15 +76,13 @@ const FairyTail: React.FC = () => {
           <li key={index} className={styles.arcItem}>
             <h3 className={styles.arcTitle}>{arc.title}</h3>
             <p>{arc.description}</p>
-            <button
-              className={styles.voteButton}
-              onClick={() => handleVote(arc.title)}
-            >
-              Voter pour cet arc
-            </button>
           </li>
         ))}
       </ul>
+      <h2 className={styles.subTitle}>Votez pour l'œuvre entière</h2>
+      <button className={styles.voteButton} onClick={handleVote}>
+        Voter pour Fairy Tail
+      </button>
       {message && <p className={styles.message}>{message}</p>}
     </div>
   );
