@@ -4,13 +4,14 @@
 .scene {
   position: relative;
   width: 100%;
-  height: 100vh;
-  background: linear-gradient(to bottom, #000, #111); /* Changement de l'arrière-plan en dégradé */
+  min-height: 100vh; /* Utilisez min-height pour permettre un défilement si nécessaire */
+  background: linear-gradient(to bottom, #000, #111);
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow-y: auto; /* Permet de faire défiler le texte s'il dépasse l'écran */
+  overflow-y: auto;
   color: #fff;
+  padding: 20px; /* Ajoutez un padding pour éviter que le contenu touche les bords */
 }
 
 /* Effet parallax */
